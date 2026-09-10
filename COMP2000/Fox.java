@@ -19,7 +19,7 @@ public class Fox extends Predator {
             moveToward(target);
             tryEat(target);
         } else {
-            wander();
+            wander(world);
         }
     }
 

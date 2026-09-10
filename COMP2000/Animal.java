@@ -41,8 +41,10 @@ public abstract class Animal extends Entity {
         }
     }
 
-    protected void wander() {
-        setPosition(getX() + (Math.random() - 0.5) * speed, getY() + (Math.random() - 0.5) * speed);
+    /** Takes the World to reach its seeded Random. */
+    protected void wander(World world) {
+        java.util.Random rng = world.getRandom();
+        setPosition(getX() + (rng.nextDouble() - 0.5) * speed, getY() + (rng.nextDouble() - 0.5) * speed);
     }
 
     protected <T extends Entity> T findNearest(List<T> candidates) {
