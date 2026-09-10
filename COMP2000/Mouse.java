@@ -9,12 +9,12 @@ import java.util.List;
  * cooldown so the population doesn't explode every single tick.
  */
 public class Mouse extends Prey {
-    private double reproduceCooldown = 0;
-    private static final double CONTACT_DISTANCE = 10;
-    private static final double COOLDOWN_TICKS = 50;
+    private int reproduceCooldown = 0;
+    private static final int CONTACT_DISTANCE = 1;
+    private static final int COOLDOWN_TICKS = 50;
 
-    public Mouse(double x, double y) {
-        super(x, y, 40, 70, 20); // health, visionRadius, nutritionValue (worth to a predator)
+    public Mouse(int x, int y) {
+        super(x, y, 40, 3, 20); // health, visionRadius, nutritionValue (worth to a predator)
     }
 
     @Override
@@ -66,7 +66,7 @@ public class Mouse extends Prey {
     @Override
     public void draw(Graphics g) {
         g.setColor(getColor());
-        g.fillOval((int) getX() - 3, (int) getY() - 3, 6, 6);
+        g.fillOval(px() - 3, py() - 3, 6, 6);
     }
 
     @Override

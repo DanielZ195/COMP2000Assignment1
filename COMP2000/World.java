@@ -7,7 +7,7 @@ import java.util.Random;
  * of entity in its own typed List (List<Hawk>, List<Mouse>, etc.) so
  * animals can query "give me all the mice" without casting, and it also
  * offers allEntities() as a single List<Entity> for generic operations
- * like drawing or the main update loop.
+ * like drawing or the main update loop. width/height are in cells.
  *
  * World owns the one seeded Random the simulation draws from, so a given
  * seed always replays the same run.
@@ -25,31 +25,31 @@ public class World {
 
     // A rectangular refuge that Predators are physically barred from entering.
     // Rabbit and Mouse are ordinary Prey, so nothing stops them going in.
-    private final double zoneX, zoneY, zoneWidth, zoneHeight;
+    private final int zoneX, zoneY, zoneWidth, zoneHeight;
 
     public World(int width, int height, long seed) {
         this.width = width;
         this.height = height;
         this.seed = seed;
         this.rng = new Random(seed);
-        this.zoneWidth = width * 0.22;
-        this.zoneHeight = height * 0.3;
-        this.zoneX = width - zoneWidth - 20;
-        this.zoneY = height - zoneHeight - 20;
+        this.zoneWidth = (int) (width * 0.22);
+        this.zoneHeight = (int) (height * 0.3);
+        this.zoneX = width - zoneWidth - 1;
+        this.zoneY = height - zoneHeight - 1;
     }
 
     public Random getRandom() { return rng; }
     public long getSeed() { return seed; }
 
-    public boolean isInSafeZone(double px, double py) {
+    public boolean isInSafeZone(int px, int py) {
         return px >= zoneX && px <= zoneX + zoneWidth
             && py >= zoneY && py <= zoneY + zoneHeight;
     }
 
-    public double getZoneX() { return zoneX; }
-    public double getZoneY() { return zoneY; }
-    public double getZoneWidth() { return zoneWidth; }
-    public double getZoneHeight() { return zoneHeight; }
+    public int getZoneX() { return zoneX; }
+    public int getZoneY() { return zoneY; }
+    public int getZoneWidth() { return zoneWidth; }
+    public int getZoneHeight() { return zoneHeight; }
 
     public List<Hawk> getHawks() { return hawks; }
     public List<Fox> getFoxes() { return foxes; }
@@ -65,9 +65,9 @@ public class World {
 
     /** Throws SpawnException if the new point would land outside the world. */
     public void spawnMouseNear(Mouse parent) throws SpawnException {
-        double x = parent.getX() + (rng.nextDouble() - 0.5) * 20;
-        double y = parent.getY() + (rng.nextDouble() - 0.5) * 20;
-        if (x < 0 || x > width || y < 0 || y > height) {
+        int x = parent.getX() + rng.nextInt(3) - 1;
+        int y = parent.getY() + rng.nextInt(3) - 1;
+        if (x < 0 || x >= width || y < 0 || y >= height) {
             throw new SpawnException("Spawn point (" + x + ", " + y + ") is out of bounds");
         }
         mice.add(new Mouse(x, y));
@@ -95,14 +95,14 @@ public class World {
         removeDead();
 
         if (tickCount % 30 == 0) {
-            food.add(new Food(rng.nextDouble() * width, rng.nextDouble() * height));
+            food.add(new Food(rng.nextInt(width), rng.nextInt(height)));
         }
     }
 
     /** setPosition() is protected on Entity, but World is a same-package collaborator, so it can call it. */
     private void clampToBounds(Entity e) {
-        double clampedX = Math.max(0, Math.min(e.getX(), width));
-        double clampedY = Math.max(0, Math.min(e.getY(), height));
+        int clampedX = Math.max(0, Math.min(e.getX(), width - 1));
+        int clampedY = Math.max(0, Math.min(e.getY(), height - 1));
         e.setPosition(clampedX, clampedY);
     }
 
@@ -111,11 +111,11 @@ public class World {
         if (!(e instanceof Predator)) return;
         if (!isInSafeZone(e.getX(), e.getY())) return;
 
-        double distLeft = e.getX() - zoneX;
-        double distRight = (zoneX + zoneWidth) - e.getX();
-        double distTop = e.getY() - zoneY;
-        double distBottom = (zoneY + zoneHeight) - e.getY();
-        double nearest = Math.min(Math.min(distLeft, distRight), Math.min(distTop, distBottom));
+        int distLeft = e.getX() - zoneX;
+        int distRight = (zoneX + zoneWidth) - e.getX();
+        int distTop = e.getY() - zoneY;
+        int distBottom = (zoneY + zoneHeight) - e.getY();
+        int nearest = Math.min(Math.min(distLeft, distRight), Math.min(distTop, distBottom));
 
         if (nearest == distLeft) e.setPosition(zoneX - 1, e.getY());
         else if (nearest == distRight) e.setPosition(zoneX + zoneWidth + 1, e.getY());
