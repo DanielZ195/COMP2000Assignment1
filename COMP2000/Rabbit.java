@@ -20,7 +20,7 @@ public class Rabbit extends Prey {
             moveToward(food);
             tryEatFood(food);
         } else {
-            wander();
+            wander(world);
         }
     }
 

@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * World owns every entity and drives the simulation. It stores each kind
@@ -7,9 +8,14 @@ import java.util.List;
  * animals can query "give me all the mice" without casting, and it also
  * offers allEntities() as a single List<Entity> for generic operations
  * like drawing or the main update loop.
+ *
+ * World owns the one seeded Random the simulation draws from, so a given
+ * seed always replays the same run.
  */
 public class World {
     private final int width, height;
+    private final long seed;
+    private final Random rng;
     private final List<Hawk> hawks = new ArrayList<>();
     private final List<Fox> foxes = new ArrayList<>();
     private final List<Rabbit> rabbits = new ArrayList<>();
@@ -21,14 +27,19 @@ public class World {
     // Rabbit and Mouse are ordinary Prey, so nothing stops them going in.
     private final double zoneX, zoneY, zoneWidth, zoneHeight;
 
-    public World(int width, int height) {
+    public World(int width, int height, long seed) {
         this.width = width;
         this.height = height;
+        this.seed = seed;
+        this.rng = new Random(seed);
         this.zoneWidth = width * 0.22;
         this.zoneHeight = height * 0.3;
         this.zoneX = width - zoneWidth - 20;
         this.zoneY = height - zoneHeight - 20;
     }
+
+    public Random getRandom() { return rng; }
+    public long getSeed() { return seed; }
 
     public boolean isInSafeZone(double px, double py) {
         return px >= zoneX && px <= zoneX + zoneWidth
@@ -54,8 +65,8 @@ public class World {
 
     /** Throws SpawnException if the new point would land outside the world. */
     public void spawnMouseNear(Mouse parent) throws SpawnException {
-        double x = parent.getX() + (Math.random() - 0.5) * 20;
-        double y = parent.getY() + (Math.random() - 0.5) * 20;
+        double x = parent.getX() + (rng.nextDouble() - 0.5) * 20;
+        double y = parent.getY() + (rng.nextDouble() - 0.5) * 20;
         if (x < 0 || x > width || y < 0 || y > height) {
             throw new SpawnException("Spawn point (" + x + ", " + y + ") is out of bounds");
         }
@@ -84,7 +95,7 @@ public class World {
         removeDead();
 
         if (tickCount % 30 == 0) {
-            food.add(new Food(Math.random() * width, Math.random() * height));
+            food.add(new Food(rng.nextDouble() * width, rng.nextDouble() * height));
         }
     }
 
