@@ -5,29 +5,29 @@ import java.util.Random;
 
 public class Main {
     public static void main(String[] args) {
-        int width = 800, height = 600;
+        int cols = 40, rows = 30;
 
         // Pass a seed as args[0] to replay a run.
         long seed = (args.length > 0) ? Long.parseLong(args[0]) : System.currentTimeMillis();
-        World world = new World(width, height, seed);
+        World world = new World(cols, rows, seed);
         System.out.println("Simulation seed: " + seed + "  (re-run with: java Main " + seed + ")");
 
         Random rng = world.getRandom();
 
         for (int i = 0; i < 2; i++) {
-            double[] p = randomPointOutsideZone(world);
+            int[] p = randomPointOutsideZone(world);
             world.addHawk(new Hawk(p[0], p[1]));
         }
         for (int i = 0; i < 3; i++) {
-            double[] p = randomPointOutsideZone(world);
+            int[] p = randomPointOutsideZone(world);
             world.addFox(new Fox(p[0], p[1]));
         }
-        for (int i = 0; i < 15; i++) world.addRabbit(new Rabbit(rng.nextDouble() * width, rng.nextDouble() * height));
-        for (int i = 0; i < 20; i++) world.addMouse(new Mouse(rng.nextDouble() * width, rng.nextDouble() * height));
-        for (int i = 0; i < 30; i++) world.addFood(new Food(rng.nextDouble() * width, rng.nextDouble() * height));
+        for (int i = 0; i < 15; i++) world.addRabbit(new Rabbit(rng.nextInt(cols), rng.nextInt(rows)));
+        for (int i = 0; i < 20; i++) world.addMouse(new Mouse(rng.nextInt(cols), rng.nextInt(rows)));
+        for (int i = 0; i < 30; i++) world.addFood(new Food(rng.nextInt(cols), rng.nextInt(rows)));
 
         SimPanel panel = new SimPanel(world);
-        panel.setPreferredSize(new Dimension(width, height));
+        panel.setPreferredSize(new Dimension(cols * SimPanel.CELL_SIZE, rows * SimPanel.CELL_SIZE));
 
         JFrame frame = new JFrame("Predator and Prey Simulation - COMP2000");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,13 +44,13 @@ public class Main {
         timer.start();
     }
 
-    private static double[] randomPointOutsideZone(World world) {
+    private static int[] randomPointOutsideZone(World world) {
         Random rng = world.getRandom();
-        double x, y;
+        int x, y;
         do {
-            x = rng.nextDouble() * world.getWidth();
-            y = rng.nextDouble() * world.getHeight();
+            x = rng.nextInt(world.getWidth());
+            y = rng.nextInt(world.getHeight());
         } while (world.isInSafeZone(x, y));
-        return new double[]{x, y};
+        return new int[]{x, y};
     }
 }

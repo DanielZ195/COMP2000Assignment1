@@ -5,7 +5,7 @@ import java.awt.Graphics;
 public class Food extends Entity implements Edible {
     private static final double NUTRITION_VALUE = 25;
 
-    public Food(double x, double y) {
+    public Food(int x, int y) {
         super(x, y);
     }
 
@@ -22,7 +22,7 @@ public class Food extends Entity implements Edible {
     @Override
     public void draw(Graphics g) {
         g.setColor(getColor());
-        g.fillOval((int) getX() - 3, (int) getY() - 3, 6, 6);
+        g.fillOval(px() - 3, py() - 3, 6, 6);
     }
 
     @Override

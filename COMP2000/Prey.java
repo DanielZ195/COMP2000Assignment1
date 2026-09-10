@@ -12,15 +12,15 @@ import java.util.List;
  * updateSpeed() counts that down every tick until it runs out.
  */
 public abstract class Prey extends Animal implements Edible {
-    protected static final double HUNGRY_SPEED = 1.0;
-    protected static final double FED_SPEED = 2.0;
+    protected static final int HUNGRY_SPEED = 1;
+    protected static final int FED_SPEED = 2;
     protected static final int FED_DURATION = 80; // ticks of fast movement per meal
 
-    protected double eatDistance = 6;
+    protected int eatDistance = 1;
     protected double nutritionValue; // how much health a Predator gains from eating this
     protected int fedTicks = 0;
 
-    public Prey(double x, double y, double health, double visionRadius, double nutritionValue) {
+    public Prey(int x, int y, double health, int visionRadius, double nutritionValue) {
         super(x, y, health, HUNGRY_SPEED, visionRadius);
         this.nutritionValue = nutritionValue;
     }

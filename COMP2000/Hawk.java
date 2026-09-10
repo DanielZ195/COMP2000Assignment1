@@ -5,8 +5,8 @@ import java.util.List;
 
 
 public class Hawk extends Predator {
-    public Hawk(double x, double y) {
-        super(x, y, 100, 3.0, 120);
+    public Hawk(int x, int y) {
+        super(x, y, 100, 3, 6);
     }
 
     @Override
@@ -26,8 +26,8 @@ public class Hawk extends Predator {
     @Override
     public void draw(Graphics g) {
         g.setColor(getColor());
-        g.fillPolygon(new int[]{(int) getX(), (int) getX() - 6, (int) getX() + 6},
-                      new int[]{(int) getY() - 8, (int) getY() + 6, (int) getY() + 6}, 3);
+        g.fillPolygon(new int[]{px(), px() - 6, px() + 6},
+                      new int[]{py() - 8, py() + 6, py() + 6}, 3);
     }
 
     @Override

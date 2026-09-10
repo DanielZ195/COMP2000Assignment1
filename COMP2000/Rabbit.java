@@ -3,8 +3,8 @@ import java.awt.Graphics;
 
 /** Rabbits flee from any predator in range, otherwise seek food, otherwise wander. */
 public class Rabbit extends Prey {
-    public Rabbit(double x, double y) {
-        super(x, y, 60, 80, 35); // health, visionRadius, nutritionValue (worth to a predator)
+    public Rabbit(int x, int y) {
+        super(x, y, 60, 4, 35); // health, visionRadius, nutritionValue (worth to a predator)
     }
 
     @Override
@@ -27,7 +27,7 @@ public class Rabbit extends Prey {
     @Override
     public void draw(Graphics g) {
         g.setColor(getColor());
-        g.fillOval((int) getX() - 5, (int) getY() - 5, 10, 10);
+        g.fillOval(px() - 5, py() - 5, 10, 10);
     }
 
     @Override

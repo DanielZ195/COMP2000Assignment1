@@ -3,6 +3,9 @@ import java.awt.Graphics;
 import java.awt.Color;
 
 public class SimPanel extends JPanel {
+    /** Pixels per grid cell. */
+    public static final int CELL_SIZE = 20;
+
     private final World world;
 
     public SimPanel(World world) {
@@ -16,12 +19,12 @@ public class SimPanel extends JPanel {
 
         // Safe zone: predators cannot enter this rectangle.
         g.setColor(new Color(80, 160, 255, 40));
-        g.fillRect((int) world.getZoneX(), (int) world.getZoneY(),
-                   (int) world.getZoneWidth(), (int) world.getZoneHeight());
+        g.fillRect(world.getZoneX() * CELL_SIZE, world.getZoneY() * CELL_SIZE,
+                   world.getZoneWidth() * CELL_SIZE, world.getZoneHeight() * CELL_SIZE);
         g.setColor(new Color(80, 160, 255));
-        g.drawRect((int) world.getZoneX(), (int) world.getZoneY(),
-                   (int) world.getZoneWidth(), (int) world.getZoneHeight());
-        g.drawString("Safe zone", (int) world.getZoneX() + 6, (int) world.getZoneY() + 14);
+        g.drawRect(world.getZoneX() * CELL_SIZE, world.getZoneY() * CELL_SIZE,
+                   world.getZoneWidth() * CELL_SIZE, world.getZoneHeight() * CELL_SIZE);
+        g.drawString("Safe zone", world.getZoneX() * CELL_SIZE + 6, world.getZoneY() * CELL_SIZE + 14);
 
         for (Entity e : world.allEntities()) {
             if (e.isAlive()) {
