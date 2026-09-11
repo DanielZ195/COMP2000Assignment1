@@ -23,6 +23,8 @@ public class World {
     private final List<Mouse> mice = new ArrayList<>();
     private final List<Food> food = new ArrayList<>();
     private final Grid<Entity> grid;
+    private static final int FOOD_PER_TICK = 1;
+    private static final int MAX_FOOD = 80;
     private int tickCount = 0;
 
     // A rectangular refuge that Predators are physically barred from entering.
@@ -37,8 +39,8 @@ public class World {
         // produces near-identical first draws, so seeds 1 and 2 would open alike.
         this.rng = new Random(seed * 6364136223846793005L + 1442695040888963407L);
         this.grid = new Grid<>(width, height);
-        this.zoneWidth = (int) (width * 0.22);
-        this.zoneHeight = (int) (height * 0.3);
+        this.zoneWidth = (int) (width * 0.28);
+        this.zoneHeight = (int) (height * 0.38);
         this.zoneX = width - zoneWidth - 1;
         this.zoneY = height - zoneHeight - 1;
     }
@@ -51,6 +53,9 @@ public class World {
         return px >= zoneX && px <= zoneX + zoneWidth
             && py >= zoneY && py <= zoneY + zoneHeight;
     }
+
+    public int getZoneCentreX() { return zoneX + zoneWidth / 2; }
+    public int getZoneCentreY() { return zoneY + zoneHeight / 2; }
 
     public int getZoneX() { return zoneX; }
     public int getZoneY() { return zoneY; }
@@ -69,14 +74,23 @@ public class World {
     public void addMouse(Mouse m) { mice.add(m); }
     public void addFood(Food f) { food.add(f); }
 
-    /** Throws SpawnException if the new point would land outside the world. */
-    public void spawnMouseNear(Mouse parent) throws SpawnException {
+    /** Places one offspring next to its parent. Throws if there is no room inside the world. */
+    public Animal spawnNear(Animal parent) throws SpawnException {
         int x = parent.getX() + rng.nextInt(3) - 1;
         int y = parent.getY() + rng.nextInt(3) - 1;
-        if (x < 0 || x >= width || y < 0 || y >= height) {
+        if (!grid.contains(x, y)) {
             throw new SpawnException("Spawn point (" + x + ", " + y + ") is out of bounds");
         }
-        mice.add(new Mouse(x, y));
+        Animal child = parent.newOffspring(x, y);
+        register(child);
+        return child;
+    }
+
+    private void register(Animal a) {
+        if (a instanceof Hawk) hawks.add((Hawk) a);
+        else if (a instanceof Fox) foxes.add((Fox) a);
+        else if (a instanceof Rabbit) rabbits.add((Rabbit) a);
+        else if (a instanceof Mouse) mice.add((Mouse) a);
     }
 
     public List<Entity> allEntities() {
@@ -107,7 +121,7 @@ public class World {
         }
         removeDead();
 
-        if (tickCount % 30 == 0) {
+        for (int i = 0; i < FOOD_PER_TICK && food.size() < MAX_FOOD; i++) {
             food.add(new Food(rng.nextInt(width), rng.nextInt(height)));
         }
     }
@@ -119,7 +133,9 @@ public class World {
     private void rebuildGrid() {
         grid.clear();
         for (Entity e : allEntities()) {
-            if (e.isAlive() && grid.contains(e.getX(), e.getY())) grid.add(e);
+            if (!e.isAlive()) continue;
+            if (e instanceof Animal) ((Animal) e).resetBreedFlag();
+            if (grid.contains(e.getX(), e.getY())) grid.add(e);
         }
     }
 

@@ -3,7 +3,7 @@ import java.awt.Graphics;
 
 
 public class Food extends Entity implements Edible {
-    private static final double NUTRITION_VALUE = 25;
+    private static final double NUTRITION_VALUE = 40;
 
     public Food(int x, int y) {
         super(x, y);

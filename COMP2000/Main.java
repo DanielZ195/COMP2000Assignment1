@@ -24,7 +24,7 @@ public class Main {
         }
         for (int i = 0; i < 15; i++) world.addRabbit(new Rabbit(rng.nextInt(cols), rng.nextInt(rows)));
         for (int i = 0; i < 20; i++) world.addMouse(new Mouse(rng.nextInt(cols), rng.nextInt(rows)));
-        for (int i = 0; i < 30; i++) world.addFood(new Food(rng.nextInt(cols), rng.nextInt(rows)));
+        for (int i = 0; i < 40; i++) world.addFood(new Food(rng.nextInt(cols), rng.nextInt(rows)));
 
         SimPanel panel = new SimPanel(world);
         panel.setPreferredSize(new Dimension(cols * SimPanel.CELL_SIZE, rows * SimPanel.CELL_SIZE));
