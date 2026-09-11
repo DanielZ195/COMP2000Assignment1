@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Prey is-a Animal that eats Food and flees Predators, and also implements
@@ -38,13 +36,6 @@ public abstract class Prey extends Animal implements Edible {
         } else {
             speed = HUNGRY_SPEED;
         }
-    }
-
-    protected List<Predator> nearbyPredators(World world) {
-        List<Predator> predators = new ArrayList<>();
-        predators.addAll(world.getHawks());
-        predators.addAll(world.getFoxes());
-        return predators;
     }
 
     protected boolean tryEatFood(Food food) {

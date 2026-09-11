@@ -25,11 +25,11 @@ public class Mouse extends Prey {
             reproduceCooldown--;
         }
 
-        Predator threat = findNearest(nearbyPredators(world));
+        Predator threat = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Predator.class));
         if (threat != null) {
             moveAwayFrom(threat);
         } else {
-            Food food = findNearest(world.getFood());
+            Food food = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Food.class));
             if (food != null) {
                 moveToward(food);
                 tryEatFood(food);
@@ -44,7 +44,7 @@ public class Mouse extends Prey {
     private void tryReproduce(World world) {
         if (reproduceCooldown > 0) return;
 
-        List<Mouse> mice = world.getMice();
+        List<Mouse> mice = world.getGrid().occupantsWithin(getX(), getY(), CONTACT_DISTANCE, Mouse.class);
         for (Mouse other : mice) {
             if (other == this || !other.isAlive()) continue;
             if (other.reproduceCooldown > 0) continue;
