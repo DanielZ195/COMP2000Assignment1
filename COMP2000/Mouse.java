@@ -14,6 +14,10 @@ public class Mouse extends Prey {
     @Override
     protected Animal newOffspring(int x, int y) { return new Mouse(x, y); }
 
+    /** Small enough to know every way back to cover, so it breaks for the refuge earlier. */
+    @Override
+    protected int refugeRange() { return 22; }
+
     @Override
     protected double breedThreshold() { return maxHealth * 0.22; }
 

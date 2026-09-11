@@ -1,5 +1,8 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.awt.Color;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Random;
 
@@ -23,9 +26,14 @@ public class World {
     private final List<Mouse> mice = new ArrayList<>();
     private final List<Food> food = new ArrayList<>();
     private final Grid<Entity> grid;
-    private static final int FOOD_PER_TICK = 1;
-    private static final int MAX_FOOD = 80;
+    private static final int FOOD_PER_TICK = 2;
+    private static final int MAX_FOOD = 120;
     private int tickCount = 0;
+    private int maxTicks = 0; // 0 = no limit
+    private SimulationState state = SimulationState.RUNNING;
+
+    private final Map<String, List<Integer>> history = new LinkedHashMap<>();
+    private int starved = 0, eaten = 0, births = 0, hops = 0;
 
     // A rectangular refuge that Predators are physically barred from entering.
     // Rabbit and Mouse are ordinary Prey, so nothing stops them going in.
@@ -39,6 +47,7 @@ public class World {
         // produces near-identical first draws, so seeds 1 and 2 would open alike.
         this.rng = new Random(seed * 6364136223846793005L + 1442695040888963407L);
         this.grid = new Grid<>(width, height);
+        for (String species : speciesColours().keySet()) history.put(species, new ArrayList<>());
         this.zoneWidth = (int) (width * 0.28);
         this.zoneHeight = (int) (height * 0.38);
         this.zoneX = width - zoneWidth - 1;
@@ -46,6 +55,36 @@ public class World {
     }
 
     public Grid<Entity> getGrid() { return grid; }
+    public SimulationState getState() { return state; }
+    public int getTickCount() { return tickCount; }
+    public void setMaxTicks(int t) { this.maxTicks = t; }
+
+    public Map<String, List<Integer>> getHistory() { return history; }
+    public int getStarved() { return starved; }
+    public int getEaten() { return eaten; }
+    public int getBirths() { return births; }
+    public int getHops() { return hops; }
+
+    void recordHop() { hops++; }
+
+    /** Each species reports its own colour, so the graph always matches the dots. */
+    public Map<String, Color> speciesColours() {
+        Map<String, Color> m = new LinkedHashMap<>();
+        m.put("Hawks", new Hawk(0, 0).getColor());
+        m.put("Foxes", new Fox(0, 0).getColor());
+        m.put("Rabbits", new Rabbit(0, 0).getColor());
+        m.put("Mice", new Mouse(0, 0).getColor());
+        m.put("Food", new Food(0, 0).getColor());
+        return m;
+    }
+
+    private void recordHistory() {
+        history.get("Hawks").add(hawks.size());
+        history.get("Foxes").add(foxes.size());
+        history.get("Rabbits").add(rabbits.size());
+        history.get("Mice").add(mice.size());
+        history.get("Food").add(food.size());
+    }
     public Random getRandom() { return rng; }
     public long getSeed() { return seed; }
 
@@ -83,6 +122,7 @@ public class World {
         }
         Animal child = parent.newOffspring(x, y);
         register(child);
+        births++;
         return child;
     }
 
@@ -104,6 +144,7 @@ public class World {
     }
 
     public void update() {
+        if (state != SimulationState.RUNNING) return;
         tickCount++;
         rebuildGrid();
 
@@ -124,6 +165,17 @@ public class World {
         for (int i = 0; i < FOOD_PER_TICK && food.size() < MAX_FOOD; i++) {
             food.add(new Food(rng.nextInt(width), rng.nextInt(height)));
         }
+
+        recordHistory();
+        state = evaluateState();
+    }
+
+    /** Extinction is an expected outcome, so it is returned, never thrown. */
+    private SimulationState evaluateState() {
+        if (rabbits.isEmpty() && mice.isEmpty()) return SimulationState.PREY_EXTINCT;
+        if (hawks.isEmpty() && foxes.isEmpty()) return SimulationState.PREDATORS_EXTINCT;
+        if (maxTicks > 0 && tickCount >= maxTicks) return SimulationState.TIME_LIMIT;
+        return SimulationState.RUNNING;
     }
 
     /**
@@ -164,6 +216,11 @@ public class World {
     }
 
     private void removeDead() {
+        for (Entity e : allEntities()) {
+            if (e.isAlive() || !(e instanceof Animal)) continue;
+            if (e.getDeathCause() == DeathCause.STARVED) starved++;
+            else if (e.getDeathCause() == DeathCause.EATEN) eaten++;
+        }
         hawks.removeIf(h -> !h.isAlive());
         foxes.removeIf(f -> !f.isAlive());
         rabbits.removeIf(r -> !r.isAlive());

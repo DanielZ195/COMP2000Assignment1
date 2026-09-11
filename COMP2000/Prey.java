@@ -13,7 +13,7 @@ public abstract class Prey extends Animal implements Edible {
     protected static final int HUNGRY_SPEED = 1;
     protected static final int FED_SPEED = 2;
     protected static final double HOP_COST = 8;
-    protected static final int REFUGE_RANGE = 12;
+
 
     protected int eatDistance = 1;
     protected double nutritionValue; // how much health a Predator gains from eating this
@@ -55,7 +55,11 @@ public abstract class Prey extends Animal implements Edible {
             setPosition(getX() + sideways, getY() + 2 * away);
         }
         health -= HOP_COST;
+        world.recordHop();
     }
+
+    /** How far out this animal will still break for the refuge. */
+    protected int refugeRange() { return 12; }
 
     /** How far this animal is from the refuge predators cannot enter. */
     protected int distanceToRefuge(World world) {
@@ -82,7 +86,7 @@ public abstract class Prey extends Animal implements Edible {
         if (threat != null) {
             if (world.isInSafeZone(getX(), getY())) {
                 wander(world);
-            } else if (distanceToRefuge(world) <= REFUGE_RANGE) {
+            } else if (distanceToRefuge(world) <= refugeRange()) {
                 moveToward(world.getZoneCentreX(), world.getZoneCentreY());
             } else {
                 evade(threat, world);

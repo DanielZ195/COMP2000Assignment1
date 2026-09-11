@@ -17,6 +17,10 @@ public abstract class Predator extends Animal {
     @Override
     protected double breedThreshold() { return maxHealth * 0.75; }
 
+    /** Predators pay far more than prey to breed, so their numbers lag prey numbers. */
+    @Override
+    protected double breedCost() { return maxHealth * 0.40; }
+
     /**
      * The refuge check matters: World ejects predators from the safe zone only
      * after they have already acted, so without this a predator could step in,
@@ -26,7 +30,7 @@ public abstract class Predator extends Animal {
         if (world.isInSafeZone(prey == null ? -1 : prey.getX(),
                                prey == null ? -1 : prey.getY())) return false;
         if (prey != null && prey.isAlive() && distanceTo(prey) <= eatDistance) {
-            prey.kill();
+            prey.kill(DeathCause.EATEN);
             feed(prey.getNutritionValue());
             return true;
         }

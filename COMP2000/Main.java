@@ -1,5 +1,6 @@
 import javax.swing.JFrame;
 import javax.swing.Timer;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Random;
 
@@ -28,10 +29,12 @@ public class Main {
 
         SimPanel panel = new SimPanel(world);
         panel.setPreferredSize(new Dimension(cols * SimPanel.CELL_SIZE, rows * SimPanel.CELL_SIZE));
+        GraphPanel graph = new GraphPanel(world);
 
         JFrame frame = new JFrame("Predator and Prey Simulation - COMP2000");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(panel);
+        frame.add(panel, BorderLayout.CENTER);
+        frame.add(graph, BorderLayout.SOUTH);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
@@ -40,6 +43,13 @@ public class Main {
         Timer timer = new Timer(50, e -> {
             world.update();
             panel.repaint();
+            graph.repaint();
+            if (world.getState() != SimulationState.RUNNING) {
+                ((Timer) e.getSource()).stop();
+                System.out.println("Ended at tick " + world.getTickCount() + ": " + world.getState()
+                    + "  births=" + world.getBirths() + " starved=" + world.getStarved()
+                    + " eaten=" + world.getEaten() + " hops=" + world.getHops());
+            }
         });
         timer.start();
     }
