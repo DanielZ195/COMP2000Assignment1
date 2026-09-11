@@ -1,3 +1,5 @@
+import java.util.Random;
+
 
 /**
  * Prey is-a Animal that eats Food and flees Predators, and also implements
@@ -18,9 +20,12 @@ public abstract class Prey extends Animal implements Edible {
     protected double nutritionValue; // how much health a Predator gains from eating this
     protected int fedTicks = 0;
 
+    protected static final double HOP_COST = 3;
+
     public Prey(int x, int y, double health, int visionRadius, double nutritionValue) {
         super(x, y, health, HUNGRY_SPEED, visionRadius);
         this.nutritionValue = nutritionValue;
+        this.fedTicks = FED_DURATION;
     }
 
     @Override
@@ -36,6 +41,30 @@ public abstract class Prey extends Animal implements Edible {
         } else {
             speed = HUNGRY_SPEED;
         }
+    }
+
+    /**
+     * Knight-hop clear of a predator: two cells directly away, one to the side.
+     * A slider cannot follow that in a single tick. Costs HOP_COST, so a
+     * starving animal cannot afford it and has to settle for backing away.
+     */
+    protected void evade(Predator threat, World world) {
+        if (health <= HOP_COST) {
+            moveAwayFrom(threat);
+            return;
+        }
+        Random rng = world.getRandom();
+        int dx = getX() - threat.getX();
+        int dy = getY() - threat.getY();
+        int sideways = rng.nextBoolean() ? 1 : -1;
+        if (Math.abs(dx) >= Math.abs(dy)) {
+            int away = (dx == 0) ? sideways : Integer.signum(dx);
+            setPosition(getX() + 2 * away, getY() + sideways);
+        } else {
+            int away = (dy == 0) ? sideways : Integer.signum(dy);
+            setPosition(getX() + sideways, getY() + 2 * away);
+        }
+        health -= HOP_COST;
     }
 
     protected boolean tryEatFood(Food food) {

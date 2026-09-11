@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -32,7 +33,9 @@ public class World {
         this.width = width;
         this.height = height;
         this.seed = seed;
-        this.rng = new Random(seed);
+        // Mixed, not passed straight in: new Random(n) for small consecutive n
+        // produces near-identical first draws, so seeds 1 and 2 would open alike.
+        this.rng = new Random(seed * 6364136223846793005L + 1442695040888963407L);
         this.grid = new Grid<>(width, height);
         this.zoneWidth = (int) (width * 0.22);
         this.zoneHeight = (int) (height * 0.3);
@@ -89,7 +92,13 @@ public class World {
     public void update() {
         tickCount++;
         rebuildGrid();
-        for (Entity e : allEntities()) {
+
+        // Shuffled every tick: allEntities() returns hawks, then foxes, then
+        // prey, so a fixed order would hand predators the first move forever.
+        List<Entity> actors = allEntities();
+        Collections.shuffle(actors, rng);
+
+        for (Entity e : actors) {
             if (e.isAlive()) {
                 e.update(this);
                 clampToBounds(e);
