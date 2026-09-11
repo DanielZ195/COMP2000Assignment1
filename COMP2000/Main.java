@@ -6,26 +6,35 @@ import java.util.Random;
 
 public class Main {
     public static void main(String[] args) {
-        int cols = 40, rows = 30;
+        SimulationConfig config;
+        try {
+            config = SimulationConfig.fromArgs(args);
+        } catch (SimulationConfigException e) {
+            System.err.println("Cannot start: " + e.getMessage());
+            if (e.getCause() != null) System.err.println("  caused by: " + e.getCause());
+            System.err.println("Usage: java Main [key=value ...]");
+            return;
+        }
 
-        // Pass a seed as args[0] to replay a run.
-        long seed = (args.length > 0) ? Long.parseLong(args[0]) : System.currentTimeMillis();
-        World world = new World(cols, rows, seed);
-        System.out.println("Simulation seed: " + seed + "  (re-run with: java Main " + seed + ")");
+        World world = new World(config);
+        System.out.println("Simulation seed: " + world.getSeed()
+            + "  (re-run with: java Main seed=" + world.getSeed() + ")");
+        System.out.println("Settings: " + config);
 
         Random rng = world.getRandom();
+        int cols = config.getCols(), rows = config.getRows();
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < config.getHawks(); i++) {
             int[] p = randomPointOutsideZone(world);
             world.addHawk(new Hawk(p[0], p[1]));
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < config.getFoxes(); i++) {
             int[] p = randomPointOutsideZone(world);
             world.addFox(new Fox(p[0], p[1]));
         }
-        for (int i = 0; i < 15; i++) world.addRabbit(new Rabbit(rng.nextInt(cols), rng.nextInt(rows)));
-        for (int i = 0; i < 20; i++) world.addMouse(new Mouse(rng.nextInt(cols), rng.nextInt(rows)));
-        for (int i = 0; i < 40; i++) world.addFood(new Food(rng.nextInt(cols), rng.nextInt(rows)));
+        for (int i = 0; i < config.getRabbits(); i++) world.addRabbit(new Rabbit(rng.nextInt(cols), rng.nextInt(rows)));
+        for (int i = 0; i < config.getMice(); i++)    world.addMouse(new Mouse(rng.nextInt(cols), rng.nextInt(rows)));
+        for (int i = 0; i < config.getFood(); i++)    world.addFood(new Food(rng.nextInt(cols), rng.nextInt(rows)));
 
         SimPanel panel = new SimPanel(world);
         panel.setPreferredSize(new Dimension(cols * SimPanel.CELL_SIZE, rows * SimPanel.CELL_SIZE));
@@ -39,7 +48,6 @@ public class Main {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-      
         Timer timer = new Timer(50, e -> {
             world.update();
             panel.repaint();
@@ -54,6 +62,7 @@ public class Main {
         timer.start();
     }
 
+    /** Keeps re-rolling until the point lands outside the refuge predators cannot enter. */
     private static int[] randomPointOutsideZone(World world) {
         Random rng = world.getRandom();
         int x, y;

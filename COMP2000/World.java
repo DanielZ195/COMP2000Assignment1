@@ -26,8 +26,7 @@ public class World {
     private final List<Mouse> mice = new ArrayList<>();
     private final List<Food> food = new ArrayList<>();
     private final Grid<Entity> grid;
-    private static final int FOOD_PER_TICK = 2;
-    private static final int MAX_FOOD = 120;
+    private final SimulationConfig config;
     private int tickCount = 0;
     private int maxTicks = 0; // 0 = no limit
     private SimulationState state = SimulationState.RUNNING;
@@ -39,10 +38,21 @@ public class World {
     // Rabbit and Mouse are ordinary Prey, so nothing stops them going in.
     private final int zoneX, zoneY, zoneWidth, zoneHeight;
 
+    /** Convenience for tests: default settings on a grid of this size. */
     public World(int width, int height, long seed) {
+        this(SimulationConfig.defaults(), width, height, seed);
+    }
+
+    public World(SimulationConfig config) {
+        this(config, config.getCols(), config.getRows(), config.getSeed());
+    }
+
+    private World(SimulationConfig config, int width, int height, long seed) {
+        this.config = config;
         this.width = width;
         this.height = height;
         this.seed = seed;
+        this.maxTicks = config.getMaxTicks();
         // Mixed, not passed straight in: new Random(n) for small consecutive n
         // produces near-identical first draws, so seeds 1 and 2 would open alike.
         this.rng = new Random(seed * 6364136223846793005L + 1442695040888963407L);
@@ -56,6 +66,7 @@ public class World {
 
     public Grid<Entity> getGrid() { return grid; }
     public SimulationState getState() { return state; }
+    public SimulationConfig getConfig() { return config; }
     public int getTickCount() { return tickCount; }
     public void setMaxTicks(int t) { this.maxTicks = t; }
 
@@ -162,7 +173,7 @@ public class World {
         }
         removeDead();
 
-        for (int i = 0; i < FOOD_PER_TICK && food.size() < MAX_FOOD; i++) {
+        for (int i = 0; i < config.getFoodPerTick() && food.size() < config.getMaxFood(); i++) {
             food.add(new Food(rng.nextInt(width), rng.nextInt(height)));
         }
 

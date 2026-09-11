@@ -165,6 +165,11 @@ public abstract class Animal extends Entity {
 
     @Override
     public void update(World world) {
+        // World filters the dead out before calling this. If that ever stops
+        // being true, fail here rather than let a corpse move and eat.
+        if (!isAlive()) {
+            throw new IllegalStateException("update() called on a dead " + getClass().getSimpleName());
+        }
         health -= METABOLISM;
         if (health <= 0) {
             kill(DeathCause.STARVED);
