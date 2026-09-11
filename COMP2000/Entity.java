@@ -10,6 +10,7 @@ import java.awt.Graphics;
 public abstract class Entity {
     private int x, y;
     private boolean alive = true;
+    private DeathCause deathCause = DeathCause.UNKNOWN;
 
     public Entity(int x, int y) {
         this.x = x;
@@ -19,7 +20,14 @@ public abstract class Entity {
     public int getX() { return x; }
     public int getY() { return y; }
     public boolean isAlive() { return alive; }
-    public void kill() { alive = false; }
+    public void kill() { kill(DeathCause.UNKNOWN); }
+
+    public void kill(DeathCause cause) {
+        alive = false;
+        deathCause = cause;
+    }
+
+    public DeathCause getDeathCause() { return deathCause; }
 
     /** The only way to move an entity - subclasses use this instead of touching fields. */
     protected void setPosition(int x, int y) {

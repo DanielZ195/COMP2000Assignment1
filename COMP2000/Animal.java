@@ -167,7 +167,7 @@ public abstract class Animal extends Entity {
     public void update(World world) {
         health -= METABOLISM;
         if (health <= 0) {
-            kill();
+            kill(DeathCause.STARVED);
             return;
         }
         act(world);
