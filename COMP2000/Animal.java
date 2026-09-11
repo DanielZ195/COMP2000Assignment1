@@ -1,30 +1,112 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 /**
  * Animal is-a Entity that moves and spends energy. It factors out the
- * behaviour every animal shares (movement, vision, metabolism) so that
- * Predator and Prey only need to add what makes them different.
+ * behaviour every animal shares (movement, vision, metabolism, breeding)
+ * so that Predator and Prey only need to add what makes them different.
  *
  * findNearest() is generic: it works on a List<Hawk>, List<Prey>, or any
- * mixed list, so hunting and fleeing logic reuse one search.
+ * mixed list, so hunting, fleeing and mate-finding reuse one search.
  *
  * moveToward()/moveAwayFrom() are each overloaded: one takes an Entity,
  * the other a raw (x, y) cell.
  */
 public abstract class Animal extends Entity {
+    protected static final double METABOLISM = 1.0;
+
     protected double health;
+    protected final double maxHealth;
     protected int speed;
     protected int visionRadius;
+    private boolean bredThisTick = false;
 
-    public Animal(int x, int y, double health, int speed, int visionRadius) {
+    public Animal(int x, int y, double startHealth, int speed, int visionRadius) {
         super(x, y);
-        this.health = health;
+        this.health = startHealth;
+        this.maxHealth = startHealth * 2;
         this.speed = speed;
         this.visionRadius = visionRadius;
     }
 
     public double getHealth() { return health; }
+    public double getMaxHealth() { return maxHealth; }
+
+    /** Well fed enough to be worth calling fed - drives speed and foraging urgency. */
+    protected boolean isWellFed() { return health > maxHealth * 0.5; }
+
+    protected void feed(double amount) {
+        health = Math.min(health + amount, maxHealth);
+    }
+
+    // --- breeding -----------------------------------------------------
+
+    /** Fraction of maxHealth needed before this animal will breed. */
+    protected double breedThreshold() { return maxHealth * 0.30; }
+
+    /** Fraction of maxHealth each parent pays per offspring. */
+    protected double breedCost() { return maxHealth * 0.20; }
+
+    protected boolean canBreed() {
+        return !bredThisTick && health >= breedThreshold();
+    }
+
+    void resetBreedFlag() { bredThisTick = false; }
+
+    private void payBreedCost() {
+        health -= breedCost();
+        bredThisTick = true;
+    }
+
+    /** Each concrete species knows how to make one of itself. */
+    protected abstract Animal newOffspring(int x, int y);
+
+    /**
+     * Breed with one eligible neighbour of the same species. At most one
+     * offspring per animal per tick, otherwise a crowded cell would produce
+     * a birth for every pair in it.
+     */
+    protected void tryBreed(World world) {
+        if (!canBreed()) return;
+        for (Animal other : world.getGrid().occupantsWithin(getX(), getY(), 1, Animal.class)) {
+            if (other == this || other.getClass() != getClass() || !other.canBreed()) continue;
+            try {
+                Animal child = world.spawnNear(this);
+                payBreedCost();
+                other.payBreedCost();
+                // The child is made out of what its parents just paid, minus a
+                // loss. Without this, breeding would create energy from nothing
+                // and every population would grow without limit.
+                child.health = (breedCost() + other.breedCost()) * 0.6;
+            } catch (SpawnException e) {
+                // No room next to the parent this tick; neither parent pays.
+            }
+            return;
+        }
+    }
+
+    /**
+     * Closest breedable animal of this species, or null. Searched over a wider
+     * radius than ordinary vision: at low population density two adults would
+     * otherwise almost never meet, and the species dies out with food to spare.
+     */
+    protected Animal nearestMate(World world) {
+        int range = visionRadius * 3;
+        List<Animal> mates = new ArrayList<>();
+        for (Animal a : world.getGrid().occupantsWithin(getX(), getY(), range, Animal.class)) {
+            if (a != this && a.getClass() == getClass() && a.canBreed()) mates.add(a);
+        }
+        Animal nearest = null;
+        int best = Integer.MAX_VALUE;
+        for (Animal m : mates) {
+            int d = distanceTo(m);
+            if (d < best) { best = d; nearest = m; }
+        }
+        return nearest;
+    }
+
+    // --- movement -----------------------------------------------------
 
     protected void moveToward(Entity target) {
         moveToward(target.getX(), target.getY());
@@ -83,7 +165,7 @@ public abstract class Animal extends Entity {
 
     @Override
     public void update(World world) {
-        health -= 0.1;
+        health -= METABOLISM;
         if (health <= 0) {
             kill();
             return;

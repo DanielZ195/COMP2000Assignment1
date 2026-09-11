@@ -1,13 +1,16 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-
+/** Hawks are fast, long-sighted hunters, but they soar every fourth tick instead of acting. */
 public class Hawk extends Predator {
     private int restCounter = 0;
 
     public Hawk(int x, int y) {
-        super(x, y, 100, 3, 6);
+        super(x, y, 150, 3, 5);
     }
+
+    @Override
+    protected Animal newOffspring(int x, int y) { return new Hawk(x, y); }
 
     /** Bishop: always diagonal, never straight, so it cannot track an axis-aligned target exactly. */
     @Override
@@ -20,14 +23,8 @@ public class Hawk extends Predator {
 
     @Override
     protected void act(World world) {
-        if (++restCounter % 4 == 0) return; // soars every fourth tick
-        Prey target = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Prey.class));
-        if (target != null) {
-            moveToward(target);
-            tryEat(target);
-        } else {
-            wander(world);
-        }
+        if (++restCounter % 4 == 0) return;
+        super.act(world);
     }
 
     @Override
@@ -38,7 +35,5 @@ public class Hawk extends Predator {
     }
 
     @Override
-    public Color getColor() {
-        return Color.RED;
-    }
+    public Color getColor() { return Color.RED; }
 }

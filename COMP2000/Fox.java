@@ -1,11 +1,14 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-
+/** Foxes are slower and shorter-sighted than hawks, and can only run down one axis at a time. */
 public class Fox extends Predator {
     public Fox(int x, int y) {
-        super(x, y, 100, 2, 4);
+        super(x, y, 150, 2, 3);
     }
+
+    @Override
+    protected Animal newOffspring(int x, int y) { return new Fox(x, y); }
 
     /** Rook: moves on one axis at a time, so changing direction costs a tick. */
     @Override
@@ -15,24 +18,11 @@ public class Fox extends Predator {
     }
 
     @Override
-    protected void act(World world) {
-        Prey target = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Prey.class));
-        if (target != null) {
-            moveToward(target);
-            tryEat(target);
-        } else {
-            wander(world);
-        }
-    }
-
-    @Override
     public void draw(Graphics g) {
         g.setColor(getColor());
         g.fillOval(px() - 6, py() - 4, 12, 8);
     }
 
     @Override
-    public Color getColor() {
-        return Color.ORANGE;
-    }
+    public Color getColor() { return Color.ORANGE; }
 }

@@ -1,31 +1,26 @@
 import java.util.Random;
 
-
 /**
  * Prey is-a Animal that eats Food and flees Predators, and also implements
  * Edible - since Predator eats Prey. Rabbit and Mouse extend this so they
- * share fleeing/eating/speed logic; Mouse additionally adds reproduction
- * (see Mouse.java).
+ * share fleeing, foraging and evasion.
  *
- * Speed rule: a well-fed prey moves at FED_SPEED (2 steps); a hungry one
- * only moves at HUNGRY_SPEED (1 step). Eating food refills fedTicks, and
- * updateSpeed() counts that down every tick until it runs out.
+ * Speed follows health directly: an animal above half its maximum moves at
+ * FED_SPEED, below it at HUNGRY_SPEED. One number drives speed, evasion and
+ * breeding, so a starving animal is slow, cannot dodge, and cannot reproduce.
  */
 public abstract class Prey extends Animal implements Edible {
     protected static final int HUNGRY_SPEED = 1;
     protected static final int FED_SPEED = 2;
-    protected static final int FED_DURATION = 80; // ticks of fast movement per meal
+    protected static final double HOP_COST = 8;
+    protected static final int REFUGE_RANGE = 12;
 
     protected int eatDistance = 1;
     protected double nutritionValue; // how much health a Predator gains from eating this
-    protected int fedTicks = 0;
 
-    protected static final double HOP_COST = 3;
-
-    public Prey(int x, int y, double health, int visionRadius, double nutritionValue) {
-        super(x, y, health, HUNGRY_SPEED, visionRadius);
+    public Prey(int x, int y, double startHealth, int visionRadius, double nutritionValue) {
+        super(x, y, startHealth, FED_SPEED, visionRadius);
         this.nutritionValue = nutritionValue;
-        this.fedTicks = FED_DURATION;
     }
 
     @Override
@@ -33,23 +28,18 @@ public abstract class Prey extends Animal implements Edible {
         return nutritionValue;
     }
 
-    /** Call once per tick before moving: sets this tick's speed from fed status. */
+    /** Call once per tick before moving: sets this tick's speed from health. */
     protected void updateSpeed() {
-        if (fedTicks > 0) {
-            fedTicks--;
-            speed = FED_SPEED;
-        } else {
-            speed = HUNGRY_SPEED;
-        }
+        speed = isWellFed() ? FED_SPEED : HUNGRY_SPEED;
     }
 
     /**
      * Knight-hop clear of a predator: two cells directly away, one to the side.
-     * A slider cannot follow that in a single tick. Costs HOP_COST, so a
-     * starving animal cannot afford it and has to settle for backing away.
+     * A slider cannot follow that in a single tick. Costs HOP_COST, and an
+     * animal below a quarter health cannot afford it at all.
      */
     protected void evade(Predator threat, World world) {
-        if (health <= HOP_COST) {
+        if (health < maxHealth * 0.25) {
             moveAwayFrom(threat);
             return;
         }
@@ -67,13 +57,62 @@ public abstract class Prey extends Animal implements Edible {
         health -= HOP_COST;
     }
 
+    /** How far this animal is from the refuge predators cannot enter. */
+    protected int distanceToRefuge(World world) {
+        return Math.max(Math.abs(getX() - world.getZoneCentreX()),
+                        Math.abs(getY() - world.getZoneCentreY()));
+    }
+
     protected boolean tryEatFood(Food food) {
         if (food != null && food.isAlive() && distanceTo(food) <= eatDistance) {
             food.kill();
-            health = Math.min(health + food.getNutritionValue(), 100);
-            fedTicks = FED_DURATION;
+            feed(food.getNutritionValue());
             return true;
         }
         return false;
+    }
+
+    /** Flee, then breed, then forage, then look for a mate, then wander. */
+    @Override
+    protected void act(World world) {
+        updateSpeed();
+
+        Predator threat = findNearest(
+            world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Predator.class));
+        if (threat != null) {
+            if (world.isInSafeZone(getX(), getY())) {
+                wander(world);
+            } else if (distanceToRefuge(world) <= REFUGE_RANGE) {
+                moveToward(world.getZoneCentreX(), world.getZoneCentreY());
+            } else {
+                evade(threat, world);
+            }
+            return;
+        }
+
+        tryBreed(world);
+
+        Food food = findNearest(
+            world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Food.class));
+        if (food != null && !isWellFed()) {
+            moveToward(food);
+            tryEatFood(food);
+            return;
+        }
+
+        if (canBreed()) {
+            Animal mate = nearestMate(world);
+            if (mate != null) {
+                moveToward(mate);
+                return;
+            }
+        }
+
+        if (food != null) {
+            moveToward(food);
+            tryEatFood(food);
+        } else {
+            wander(world);
+        }
     }
 }

@@ -1,28 +1,23 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-/** Rabbits flee from any predator in range, otherwise seek food, otherwise wander. */
+/**
+ * Rabbits are the K-strategist prey: bigger, further-sighted, worth more to a
+ * predator, and slower to reproduce because they breed later and pay more.
+ */
 public class Rabbit extends Prey {
     public Rabbit(int x, int y) {
-        super(x, y, 60, 4, 35); // health, visionRadius, nutritionValue (worth to a predator)
+        super(x, y, 100, 4, 60); // startHealth, visionRadius, nutritionValue
     }
 
     @Override
-    protected void act(World world) {
-        updateSpeed();
-        Predator threat = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Predator.class));
-        if (threat != null) {
-            evade(threat, world);
-            return;
-        }
-        Food food = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Food.class));
-        if (food != null) {
-            moveToward(food);
-            tryEatFood(food);
-        } else {
-            wander(world);
-        }
-    }
+    protected Animal newOffspring(int x, int y) { return new Rabbit(x, y); }
+
+    @Override
+    protected double breedThreshold() { return maxHealth * 0.35; }
+
+    @Override
+    protected double breedCost() { return maxHealth * 0.25; }
 
     @Override
     public void draw(Graphics g) {
@@ -31,7 +26,5 @@ public class Rabbit extends Prey {
     }
 
     @Override
-    public Color getColor() {
-        return Color.WHITE;
-    }
+    public Color getColor() { return Color.WHITE; }
 }
