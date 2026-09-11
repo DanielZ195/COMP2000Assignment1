@@ -21,6 +21,7 @@ public class World {
     private final List<Rabbit> rabbits = new ArrayList<>();
     private final List<Mouse> mice = new ArrayList<>();
     private final List<Food> food = new ArrayList<>();
+    private final Grid<Entity> grid;
     private int tickCount = 0;
 
     // A rectangular refuge that Predators are physically barred from entering.
@@ -32,12 +33,14 @@ public class World {
         this.height = height;
         this.seed = seed;
         this.rng = new Random(seed);
+        this.grid = new Grid<>(width, height);
         this.zoneWidth = (int) (width * 0.22);
         this.zoneHeight = (int) (height * 0.3);
         this.zoneX = width - zoneWidth - 1;
         this.zoneY = height - zoneHeight - 1;
     }
 
+    public Grid<Entity> getGrid() { return grid; }
     public Random getRandom() { return rng; }
     public long getSeed() { return seed; }
 
@@ -85,6 +88,7 @@ public class World {
 
     public void update() {
         tickCount++;
+        rebuildGrid();
         for (Entity e : allEntities()) {
             if (e.isAlive()) {
                 e.update(this);
@@ -96,6 +100,17 @@ public class World {
 
         if (tickCount % 30 == 0) {
             food.add(new Food(rng.nextInt(width), rng.nextInt(height)));
+        }
+    }
+
+    /**
+     * Rebuilt once per tick, before anything moves, so every animal perceives
+     * the same world state regardless of where it falls in the update order.
+     */
+    private void rebuildGrid() {
+        grid.clear();
+        for (Entity e : allEntities()) {
+            if (e.isAlive() && grid.contains(e.getX(), e.getY())) grid.add(e);
         }
     }
 

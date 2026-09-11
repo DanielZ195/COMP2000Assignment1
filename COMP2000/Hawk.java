@@ -1,7 +1,5 @@
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class Hawk extends Predator {
@@ -11,10 +9,7 @@ public class Hawk extends Predator {
 
     @Override
     protected void act(World world) {
-        List<Prey> targets = new ArrayList<>();
-        targets.addAll(world.getMice());
-        targets.addAll(world.getRabbits());
-        Prey target = findNearest(targets);
+        Prey target = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Prey.class));
         if (target != null) {
             moveToward(target);
             tryEat(target);
