@@ -12,7 +12,7 @@ public class Rabbit extends Prey {
         updateSpeed();
         Predator threat = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Predator.class));
         if (threat != null) {
-            moveAwayFrom(threat);
+            evade(threat, world);
             return;
         }
         Food food = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Food.class));

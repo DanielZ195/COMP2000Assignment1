@@ -32,7 +32,8 @@ public abstract class Animal extends Entity {
 
     /** Overload: move toward a raw cell instead of a whole Entity. */
     protected void moveToward(int targetX, int targetY) {
-        setPosition(getX() + step(targetX - getX()), getY() + step(targetY - getY()));
+        int[] d = stepToward(targetX - getX(), targetY - getY());
+        setPosition(getX() + d[0], getY() + d[1]);
     }
 
     protected void moveAwayFrom(Entity threat) {
@@ -41,11 +42,21 @@ public abstract class Animal extends Entity {
 
     /** Overload: flee a raw cell instead of a whole Entity. */
     protected void moveAwayFrom(int threatX, int threatY) {
-        setPosition(getX() - step(threatX - getX()), getY() - step(threatY - getY()));
+        int[] d = stepToward(getX() - threatX, getY() - threatY);
+        setPosition(getX() + d[0], getY() + d[1]);
+    }
+
+    /**
+     * How this animal covers a (dx, dy) gap in one tick, as {stepX, stepY}.
+     * The default is free movement in any of 8 directions; Fox and Hawk
+     * override it with their own restricted movement.
+     */
+    protected int[] stepToward(int dx, int dy) {
+        return new int[]{ clampStep(dx), clampStep(dy) };
     }
 
     /** At most `speed` cells along an axis, never overshooting. */
-    private int step(int delta) {
+    protected int clampStep(int delta) {
         return Math.max(-speed, Math.min(speed, delta));
     }
 

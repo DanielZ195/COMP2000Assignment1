@@ -27,7 +27,7 @@ public class Mouse extends Prey {
 
         Predator threat = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Predator.class));
         if (threat != null) {
-            moveAwayFrom(threat);
+            evade(threat, world);
         } else {
             Food food = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Food.class));
             if (food != null) {

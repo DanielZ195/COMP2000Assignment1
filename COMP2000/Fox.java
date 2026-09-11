@@ -7,6 +7,13 @@ public class Fox extends Predator {
         super(x, y, 100, 2, 4);
     }
 
+    /** Rook: moves on one axis at a time, so changing direction costs a tick. */
+    @Override
+    protected int[] stepToward(int dx, int dy) {
+        if (Math.abs(dx) >= Math.abs(dy)) return new int[]{ clampStep(dx), 0 };
+        return new int[]{ 0, clampStep(dy) };
+    }
+
     @Override
     protected void act(World world) {
         Prey target = findNearest(world.getGrid().occupantsWithin(getX(), getY(), visionRadius, Prey.class));

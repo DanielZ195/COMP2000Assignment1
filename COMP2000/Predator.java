@@ -1,6 +1,6 @@
 
 public abstract class Predator extends Animal {
-    protected int eatDistance = 1;
+    protected int eatDistance = 0;
 
     public Predator(int x, int y, double health, int speed, int visionRadius) {
         super(x, y, health, speed, visionRadius);
