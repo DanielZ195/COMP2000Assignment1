@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Graphics;
 
 
 public class Food extends Entity implements Edible {
@@ -19,11 +18,9 @@ public class Food extends Entity implements Edible {
         return NUTRITION_VALUE;
     }
 
+
     @Override
-    public void draw(Graphics g) {
-        g.setColor(getColor());
-        g.fillOval(px() - 3, py() - 3, 6, 6);
-    }
+    public String getLabel() { return "*"; }
 
     @Override
     public Color getColor() {

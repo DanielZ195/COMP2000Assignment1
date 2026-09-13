@@ -48,7 +48,7 @@ public class Main {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        Timer timer = new Timer(50, e -> {
+        Timer timer = new Timer(config.getTickMs(), e -> {
             world.update();
             panel.repaint();
             graph.repaint();

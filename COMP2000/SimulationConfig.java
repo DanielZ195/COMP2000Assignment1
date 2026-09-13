@@ -23,6 +23,8 @@ public class SimulationConfig {
         DEFAULTS.put("foodPerTick", 2L);
         DEFAULTS.put("maxFood", 120L);
         DEFAULTS.put("maxTicks", 0L); // 0 means no limit
+        DEFAULTS.put("tickMs", 150L); // milliseconds between ticks
+        DEFAULTS.put("safeZone", 1L); // 1 = refuge on, 0 = no refuge
     }
 
     private SimulationConfig() {
@@ -67,6 +69,7 @@ public class SimulationConfig {
     private void validate() throws SimulationConfigException {
         requirePositive("cols");
         requirePositive("rows");
+        requirePositive("tickMs");
         for (String key : new String[]{"hawks", "foxes", "rabbits", "mice", "food",
                                        "foodPerTick", "maxFood", "maxTicks"}) {
             if (values.get(key) < 0) {
@@ -107,6 +110,8 @@ public class SimulationConfig {
     public int getFoodPerTick()  { return intOf("foodPerTick"); }
     public int getMaxFood()      { return intOf("maxFood"); }
     public int getMaxTicks()     { return intOf("maxTicks"); }
+    public int getTickMs()       { return intOf("tickMs"); }
+    public boolean hasSafeZone() { return values.get("safeZone") != 0L; }
 
     @Override
     public String toString() { return values.toString(); }

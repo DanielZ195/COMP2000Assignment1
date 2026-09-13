@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Graphics;
 
 /** Hawks are fast, long-sighted hunters, but they soar every fourth tick instead of acting. */
 public class Hawk extends Predator {
@@ -27,12 +26,9 @@ public class Hawk extends Predator {
         super.act(world);
     }
 
+
     @Override
-    public void draw(Graphics g) {
-        g.setColor(getColor());
-        g.fillPolygon(new int[]{px(), px() - 6, px() + 6},
-                      new int[]{py() - 8, py() + 6, py() + 6}, 3);
-    }
+    public String getLabel() { return "H"; }
 
     @Override
     public Color getColor() { return Color.RED; }

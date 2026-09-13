@@ -37,6 +37,7 @@ public class World {
     // A rectangular refuge that Predators are physically barred from entering.
     // Rabbit and Mouse are ordinary Prey, so nothing stops them going in.
     private final int zoneX, zoneY, zoneWidth, zoneHeight;
+    private final boolean safeZoneEnabled;
 
     /** Convenience for tests: default settings on a grid of this size. */
     public World(int width, int height, long seed) {
@@ -58,6 +59,7 @@ public class World {
         this.rng = new Random(seed * 6364136223846793005L + 1442695040888963407L);
         this.grid = new Grid<>(width, height);
         for (String species : speciesColours().keySet()) history.put(species, new ArrayList<>());
+        this.safeZoneEnabled = config.hasSafeZone();
         this.zoneWidth = (int) (width * 0.28);
         this.zoneHeight = (int) (height * 0.38);
         this.zoneX = width - zoneWidth - 1;
@@ -99,8 +101,11 @@ public class World {
     public Random getRandom() { return rng; }
     public long getSeed() { return seed; }
 
+    public boolean hasSafeZone() { return safeZoneEnabled; }
+
     public boolean isInSafeZone(int px, int py) {
-        return px >= zoneX && px <= zoneX + zoneWidth
+        return safeZoneEnabled
+            && px >= zoneX && px <= zoneX + zoneWidth
             && py >= zoneY && py <= zoneY + zoneHeight;
     }
 
