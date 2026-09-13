@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Graphics;
 
 /** Foxes are slower and shorter-sighted than hawks, and can only run down one axis at a time. */
 public class Fox extends Predator {
@@ -17,11 +16,9 @@ public class Fox extends Predator {
         return new int[]{ 0, clampStep(dy) };
     }
 
+
     @Override
-    public void draw(Graphics g) {
-        g.setColor(getColor());
-        g.fillOval(px() - 6, py() - 4, 12, 8);
-    }
+    public String getLabel() { return "F"; }
 
     @Override
     public Color getColor() { return Color.ORANGE; }

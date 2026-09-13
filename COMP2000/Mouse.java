@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Graphics;
 
 /**
  * Mice are the r-strategist prey: smaller, shorter-sighted and worth less to a
@@ -24,11 +23,9 @@ public class Mouse extends Prey {
     @Override
     protected double breedCost() { return maxHealth * 0.15; }
 
+
     @Override
-    public void draw(Graphics g) {
-        g.setColor(getColor());
-        g.fillOval(px() - 3, py() - 3, 6, 6);
-    }
+    public String getLabel() { return "m"; }
 
     @Override
     public Color getColor() { return Color.GRAY; }

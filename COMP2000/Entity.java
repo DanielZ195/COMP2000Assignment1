@@ -1,4 +1,6 @@
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 
 /**
@@ -45,8 +47,21 @@ public abstract class Entity {
     protected int py() { return y * SimPanel.CELL_SIZE + SimPanel.CELL_SIZE / 2; }
 
     public abstract void update(World world);
-    public abstract void draw(Graphics g);
     public abstract Color getColor();
+
+    /** The letter shown on the grid: H hawk, F fox, R rabbit, m mouse, * food. */
+    public abstract String getLabel();
+
+    private static final Font LABEL_FONT = new Font(Font.MONOSPACED, Font.BOLD, 15);
+
+    /** Every entity draws the same way; only the letter and colour differ. */
+    public void draw(Graphics g) {
+        g.setFont(LABEL_FONT);
+        g.setColor(getColor());
+        FontMetrics fm = g.getFontMetrics();
+        String label = getLabel();
+        g.drawString(label, px() - fm.stringWidth(label) / 2, py() + fm.getAscent() / 2 - 1);
+    }
 
     @Override
     public String toString() {

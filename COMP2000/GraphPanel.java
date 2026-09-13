@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class GraphPanel extends JPanel {
     private static final int WINDOW = 400;
-    private static final int HEIGHT = 140;
+    private static final int HEIGHT = 120;
 
     private final World world;
     private final Map<String, Color> colours;
@@ -30,8 +30,12 @@ public class GraphPanel extends JPanel {
         int w = getWidth(), h = getHeight();
         Map<String, List<Integer>> history = world.getHistory();
 
+        // Scaled to the animal counts only. Food runs an order of magnitude
+        // higher, and including it flattens every species line to the floor.
         int peak = 1;
-        for (List<Integer> series : history.values()) {
+        for (Map.Entry<String, List<Integer>> e : history.entrySet()) {
+            if (e.getKey().equals("Food")) continue;
+            List<Integer> series = e.getValue();
             for (int i = Math.max(0, series.size() - WINDOW); i < series.size(); i++) {
                 peak = Math.max(peak, series.get(i));
             }
@@ -45,14 +49,14 @@ public class GraphPanel extends JPanel {
             g.setColor(colours.get(entry.getKey()));
             for (int i = 1; i < n; i++) {
                 int x1 = (i - 1) * w / WINDOW, x2 = i * w / WINDOW;
-                int y1 = h - 16 - series.get(from + i - 1) * (h - 22) / peak;
-                int y2 = h - 16 - series.get(from + i) * (h - 22) / peak;
+                int y1 = plot(series.get(from + i - 1), peak, h);
+                int y2 = plot(series.get(from + i), peak, h);
                 g.drawLine(x1, y1, x2, y2);
             }
         }
 
         g.setColor(Color.GRAY);
-        g.drawString("peak " + peak, 4, 12);
+        g.drawString("max " + peak, 4, 12);
 
         int x = 60;
         for (Map.Entry<String, Color> c : colours.entrySet()) {
@@ -63,6 +67,12 @@ public class GraphPanel extends JPanel {
 
         g.setColor(Color.LIGHT_GRAY);
         g.drawString(summary(), 4, h - 4);
+    }
+
+    /** Clamped to the panel, so the food line pins to the top instead of flying off it. */
+    private int plot(int value, int peak, int h) {
+        int y = h - 16 - value * (h - 30) / peak;
+        return Math.max(14, y);
     }
 
     private String summary() {
