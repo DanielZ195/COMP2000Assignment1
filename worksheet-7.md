@@ -2,7 +2,7 @@
 
 **Student name:** Daniel Zohar
 
-**Student ID:**
+**Student ID:** 47572221
 
 **GitHub repo URL:** https://github.com/DanielZ195/COMP2000Assignment1
 
@@ -13,6 +13,7 @@
 **1.1.** Paste the first 10 lines of the output of `git log --graph --oneline --all` from your repository:
 
 ```
+* 0c0f2c3 Refresh commit log and counts in worksheet section 1
 * 447eb92 Fill worksheet section 4 and add log book entries for weeks 3 to 7
 * 75dc073 Edit worksheet prose for tone
 * 19bcc81 Add log book with Week 4 entry
@@ -22,14 +23,13 @@
 |\
 | * ea80eab Make the board readable: labels, grid lines, slower ticks
 |/
-*   bb6edbd Merge pull request #7 from DanielZ195/config-and-exceptions
 ```
 
 **1.2.** Describe your workflow. Did you use branches? Pull requests?
 
 Yes, throughout, in two phases.
 
-Team phase (weeks 3 to 6). We worked in one shared repository, each on our own named
+Team phase. We worked in one shared repository, each on our own named
 branch (`daniel`, `Anum-Taliya`, `James`, `Riya`), merging into `main` through pull
 requests. My contributions came in through PR #3 (`Prey`, `Rabbit`, `Mouse`,
 `SpawnException`) and PR #6 (`World`).
@@ -403,8 +403,8 @@ My log book is submitted alongside this worksheet as `COMP2000-Logbook.docx`. It
 for Weeks 3, 4, 5, 6 and 7. Weeks 1 and 2 are not included.
 
 The Week 3 entry has supporting evidence in the repository. The photograph of our butcher's
-paper class sketch, and the rules we wrote on the day, were committed to the README that
-week and are still there.
+paper class sketch, and the rules we wrote on the day, were committed to the README and are
+still there.
 
 **4.2.** Which week's activity taught you the most? What did you learn?
 
