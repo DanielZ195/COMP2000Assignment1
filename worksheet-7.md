@@ -13,16 +13,16 @@
 **1.1.** Paste the first 10 lines of the output of `git log --graph --oneline --all` from your repository:
 
 ```
+* 447eb92 Fill worksheet section 4 and add log book entries for weeks 3 to 7
+* 75dc073 Edit worksheet prose for tone
+* 19bcc81 Add log book with Week 4 entry
+* ad936b1 Add completed worksheet (section 4 left for log book)
 * ca77273 Add UML class design diagram
 *   76f279b Merge branch 'clearer-display'
 |\
 | * ea80eab Make the board readable: labels, grid lines, slower ticks
 |/
 *   bb6edbd Merge pull request #7 from DanielZ195/config-and-exceptions
-|\
-| * 0f2bfc0 Put every setting in SimulationConfig and validate it up front
-|/
-*   0507f70 Merge pull request #6 from DanielZ195/population-stats
 ```
 
 **1.2.** Describe your workflow. Did you use branches? Pull requests?
@@ -57,7 +57,7 @@ that was meant to.
 
 **1.3.** Estimate the percentage of commits you contributed relative to the total in your repository.
 
-24 of 39 commits, or 62%. Excluding merge commits, 14 of 27, or 52%.
+28 of 43 commits, or 65%. Excluding merge commits, 18 of 31, or 58%.
 
 Two qualifications so the number is not misleading. First, I committed under two identities
 (`daniel.zohark@gmail.com` and `daniel.zohar@students.mq.edu.au`), and the figure above
@@ -490,8 +490,7 @@ Bugs found in the inherited code
 
 **5.2.** Which feature required the most independent research or problem-solving? What did you learn from it?
 
-The knight-hop escape, because it did not work when I first wrote it and the reasons had
-nothing to do with the code I had just written.
+The knight-hop escape, because it did not work when I first wrote it, and it took a lot of thinking to figure out why.
 
 I measured it instead of eyeballing it. `ChaseTest` puts one predator and one prey alone on
 the grid with no food and counts how long the prey survives, over 60 runs. The first three
