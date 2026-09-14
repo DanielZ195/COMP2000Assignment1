@@ -399,11 +399,30 @@ could not call `getX()` on the things it stores.
 
 **4.1.** Attach or link your log book entries for Weeks 1–6.
 
-<!-- TO COMPLETE -->
+My log book is submitted alongside this worksheet as `COMP2000-Logbook.docx`. It has entries
+for Weeks 3, 4, 5, 6 and 7. Weeks 1 and 2 are not included.
+
+The Week 3 entry has supporting evidence in the repository. The photograph of our butcher's
+paper class sketch, and the rules we wrote on the day, were committed to the README that
+week and are still there.
 
 **4.2.** Which week's activity taught you the most? What did you learn?
 
-<!-- TO COMPLETE -->
+Week 4, because it is the only week where something we decided in the room is still in the
+code I am submitting.
+
+We settled on `Animal` as a superclass with each species inheriting from it, and that
+arrangement survived everything I did afterwards. What I did not expect is that the question
+we could not answer that week ended up mattering more than the one we did. We argued about
+how an object knows what else is in its cell, and whether that belongs in the object, in the
+cell, or in both kept in step, and we left class without resolving it.
+
+That question is what `Grid<T extends Entity>` answers. The cell holds the list of what is
+in it, the animals hold nothing at all about their surroundings, and every question about
+what is nearby goes through the grid. My instinct at the time was that storing it in both
+places would be the mistake, and I still think that was right. What I could not see then is
+that putting it in the cell also collects every spatial question into one class that can be
+tested on its own, which is what `GridTest` does.
 
 ---
 
